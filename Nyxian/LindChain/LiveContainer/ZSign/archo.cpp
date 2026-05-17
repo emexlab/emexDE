@@ -558,8 +558,7 @@ bool ZArchO::Sign(ZSignAsset* pSignAsset,
 		return false;
 	}
 
-	int nSpaceLength = (int)m_uLength - (int)m_uCodeLength - (int)strCodeSignBlob.size();
-	if (nSpaceLength < 0) {
+	if (m_uCodeLength > m_uLength || strCodeSignBlob.size() > (m_uLength - m_uCodeLength)) {
 		m_bEnoughSpace = false;
 		ZLog::WarnV("No enough CodeSignature space (now: %d, need: %d).", (int)m_uLength - (int)m_uCodeLength, (int)strCodeSignBlob.size());
 		return false;
