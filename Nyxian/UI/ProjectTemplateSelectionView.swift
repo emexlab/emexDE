@@ -2,7 +2,7 @@
  SPDX-License-Identifier: AGPL-3.0-or-later
 
  Copyright (C) 2026 Kyle-Ye
- Copyright (C) 2026 mach-port-t
+ Copyright (C) 2026 emexlab
 
  This file is part of Nyxian.
 
