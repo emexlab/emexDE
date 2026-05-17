@@ -275,12 +275,8 @@ extension UIViewController {
     }
     
     @objc func swizzled_present(_ viewControllerToPresent: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
-        let isPicker = String(describing: type(of: viewControllerToPresent)).lowercased().contains("picker")
-        
-        if viewControllerToPresent is UIThemedViewController ||
-           viewControllerToPresent is UIThemedTableViewController ||
-           viewControllerToPresent is UINavigationController ||
-           isPicker {
+        if viewControllerToPresent.modalPresentationStyle == .formSheet ||
+            viewControllerToPresent.modalPresentationStyle == .pageSheet {
             NXWindowServer.shared().unfocusFocusedWindow()
             NXWindowServer.shared().windowsGetOutOfMyWay()
         }
@@ -290,13 +286,8 @@ extension UIViewController {
     
     @objc func swizzled_dismiss(animated: Bool, completion: (() -> Void)? = nil) {
         let dismissedVC = self.presentedViewController ?? self
-        let isPicker = String(describing: type(of: dismissedVC)).lowercased().contains("picker")
-        
-        let shouldRestore = (dismissedVC is UIThemedViewController ||
-                             dismissedVC is UIThemedTableViewController ||
-                             dismissedVC is UINavigationController ||
-                             isPicker) &&
-                            self.presentingViewController != nil
+
+        let shouldRestore = (dismissedVC.modalPresentationStyle == .formSheet || dismissedVC.modalPresentationStyle == .pageSheet) && self.presentingViewController != nil
         
         if shouldRestore {
             swizzled_dismiss(animated: animated, completion: {
