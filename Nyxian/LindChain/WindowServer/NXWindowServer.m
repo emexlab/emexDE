@@ -116,7 +116,7 @@
     NXWindow *window = self.windows[@(identifier)];
     if(!window) return;
     
-    if(window.view.superview != self)
+    if(window.view.superview != _windowLayer)
     {
         _activeWindowIdentifier = identifier;
         [self moveWindowToFrontWithNumber:@(identifier)];
@@ -832,6 +832,10 @@
 
 - (void)windowWantsToMinimize:(NXWindow *)window
 {
+    if(_fullScreenWindow == window)
+    {
+        _fullScreenWindow = nil;
+    }
     _activeWindowIdentifier = (id_t)-1;
 }
 
