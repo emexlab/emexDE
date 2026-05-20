@@ -223,22 +223,18 @@ class Builder: NSObject, MDKDriverDelegate, MDKPhaseRunnerDelegate {
         }
         
         guard let osVersionNeeded: NXOSVersion = NXOSVersion(versionString: project.projectConfig.deploymentTarget) else {
-            throw NSError(domain: "com.cr4zy.nyxian.builder.headsup", code: 1, userInfo: [NSLocalizedDescriptionKey:"App cannot be build, host version cannot be compared. Version \(project.projectConfig.deploymentTarget!) is not valid."])
+            throw NSError(domain: "com.cr4zy.nyxian.builder.headsup", code: 1, userInfo: [NSLocalizedDescriptionKey:"Target \"\(self.project.projectConfig.displayName ?? "Unknown") (\(self.project.projectConfig.bundleid ?? "Unknown"))\" cannot be build, host version cannot be compared. Version \(project.projectConfig.deploymentTarget!) is not valid."])
         }
         
-        // Nyxian requirement checks
-        if osVersionNeeded < NXOSVersion.minimumBuildVersion {
-            throw NSError(domain: "com.cr4zy.nyxian.builder.headsup", code: 1, userInfo: [NSLocalizedDescriptionKey:"Deployment target \(osVersionNeeded) is older than Nyxian supports building for. Nyxian supports \(NXOSVersion.minimumBuildVersion) at a minimum."])
-        }
-        
-        if osVersionNeeded > NXOSVersion.maximumBuildVersion {
-            throw NSError(domain: "com.cr4zy.nyxian.builder.headsup", code: 1, userInfo: [NSLocalizedDescriptionKey:"Deployment target \(osVersionNeeded) is newer than Nyxian supports building for. Nyxian supports \(NXOSVersion.maximumBuildVersion) at a maximum."])
+        // Nyxian requirement check
+        if osVersionNeeded < NXOSVersion.minimumBuildVersion || osVersionNeeded > NXOSVersion.maximumBuildVersion {
+            throw NSError(domain: "com.cr4zy.nyxian.builder.headsup", code: 1, userInfo: [NSLocalizedDescriptionKey:"Target \"\(self.project.projectConfig.displayName ?? "Unknown") (\(self.project.projectConfig.bundleid ?? "Unknown"))\" declares deployment target \(osVersionNeeded) which is not supported by this version of emexDE. This version of emexDE supports \(NXOSVersion.minimumBuildVersion) up to \(NXOSVersion.maximumBuildVersion)."])
         }
         
         // Project requirement check
         if osVersionNeeded > NXOSVersion.hostVersion,
            buildType == .RunningApp {
-            throw NSError(domain: "com.cr4zy.nyxian.builder.headsup", code: 1, userInfo: [NSLocalizedDescriptionKey:"Deployment target \(osVersionNeeded) is needed to run the target, but host version \(NXOSVersion.hostVersion) is present."])
+            throw NSError(domain: "com.cr4zy.nyxian.builder.headsup", code: 1, userInfo: [NSLocalizedDescriptionKey:"Target \"\(self.project.projectConfig.displayName ?? "Unknown") (\(self.project.projectConfig.bundleid ?? "Unknown"))\" declares deployment target \(osVersionNeeded) which doesn't support the host version \(NXOSVersion.hostVersion). Please update your idevice."])
         }
     }
     
