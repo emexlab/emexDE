@@ -629,34 +629,65 @@
 
 - (PEEntitlement)entitlementForExecutableAtPath:(NSString*)path
 {
+    /*
+     * certain hardcoded paths get trusted regardless
+     * of the entitlements. which is a security hole
+     * but very hard to exploit.
+     */
     if([path isEqualToString:@"/usr/libexec/containerd"] ||
        [path isEqualToString:@"/usr/libexec/installd"])
     {
         return PEEntitlementSystemDaemon;
     }
     
+    /*
+     * get the file descriptor objet so we can get the
+     * entitlements of the executable at that time this
+     * opens a security hole for a TOCTOU vulnerability
+     * but we might be able to fix that in the future.
+     *
+     * fixme: This is prone to a TOCTOU vulnerability
+     *        a fix is required where the runner is
+     *        aquiring the entitlements at binary
+     *        load time with a new syscall, after
+     *        having load the executable memory
+     *        slice into memory it has to find the
+     *        entitlements and use them to set the
+     *        entitlements once using SYS_pectl.
+     *        like implementing some kind of
+     *        process pre-execution mode that
+     *        gets exited out of when ever it ran
+     *        SYS_pectl with setentitlements once.
+     */
     FDObject *object = [self fdObjectForItemAtPath:path withFlags:O_RDONLY withMode:0];
     if(object == nil)
     {
         return PEEntitlementNone;
     }
     
+    /*
+     * getting the file descriptor so we can extract the
+     * entitlements.
+     */
     int fd = [object dup];
     if(fd < 0)
     {
         return PEEntitlementNone;
     }
     
+    /* extracting entitlements */
     ksurface_ent_result_t mach;
     macho_read_token(fd, &mach);
     close(fd);
     
+    /* verifying entitlement validity */
     kern_return_t ksr = entitlement_mach_verify(&mach, ksurface->pub_key, ksurface->pub_key_len);
     if(ksr != KERN_SUCCESS)
     {
         return PEEntitlementNone;
     }
     
+    /* everything is alright */
     return mach.blob.entitlement;
 }
 

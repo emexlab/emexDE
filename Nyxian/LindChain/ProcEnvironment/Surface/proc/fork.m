@@ -58,12 +58,8 @@ ksurface_proc_t *proc_fork(ksurface_proc_t *parent,
      * will return the entitlements of
      * sayed executable.
      */
-    PEEntitlement entitlement = PEEntitlementNone;
     NSString *nsPath = [NSString stringWithCString:path encoding:NSUTF8StringEncoding];
-    if(nsPath != nil)
-    {
-        entitlement = [[PEContainer shared] entitlementForExecutableAtPath:nsPath];
-    }
+    PEEntitlement entitlement = (nsPath == nil) ? PEEntitlementNone : [[PEContainer shared] entitlementForExecutableAtPath:nsPath];
     PEEntitlement currentEntitlement = proc_getentitlements(child);
     PEEntitlement currentMaxEntitlement = proc_getmaxentitlements(child);
     
