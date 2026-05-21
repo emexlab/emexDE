@@ -120,7 +120,7 @@ DEFINE_SYSCALL_HANDLER(wait4)
     int options = (int)args[2];
     
     /* need process visibility */
-    proc_visibility_t vis = get_proc_visibility(sys_proc_snapshot_);
+    proc_visibility_t vis = proc_get_proc_visibility(sys_proc_snapshot_);
     
     pthread_mutex_lock(&(sys_proc_->children.mutex));
     for(uint64_t i = 0; i < sys_proc_->children.children_cnt; i++)
@@ -138,7 +138,7 @@ DEFINE_SYSCALL_HANDLER(wait4)
             kvo_rdlock(proc);
             
             /* visibility check */
-            if(!can_see_process(sys_proc_snapshot_, proc, vis))
+            if(!proc_can_see_proc(sys_proc_snapshot_, proc, vis))
             {
                 kvo_unlock(proc);
                 continue;

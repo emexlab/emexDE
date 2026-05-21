@@ -24,11 +24,11 @@
 #include <assert.h>
 #include <errno.h>
 
-bool permitive_over_pid_allowed(ksurface_proc_snapshot_t *proc,
-                                pid_t targetPid,
-                                bool allowSessionBypass,
-                                PEEntitlement entitlementsNeeded,
-                                PEEntitlement targetEntitlementsNeeded)
+bool proc_snapshot_permitive_over_pid_allowed(ksurface_proc_snapshot_t *proc,
+                                              pid_t targetPid,
+                                              bool allowSessionBypass,
+                                              PEEntitlement entitlementsNeeded,
+                                              PEEntitlement targetEntitlementsNeeded)
 {
     assert(proc != NULL);
     
@@ -58,7 +58,7 @@ bool permitive_over_pid_allowed(ksurface_proc_snapshot_t *proc,
         return true;
     }
     
-    proc_visibility_t vis = get_proc_visibility(proc);
+    proc_visibility_t vis = proc_get_proc_visibility(proc);
     
     /* locking target process aswell */
     kvo_rdlock(targetProc);
@@ -69,7 +69,7 @@ bool permitive_over_pid_allowed(ksurface_proc_snapshot_t *proc,
      * permitives over a process. not seeing it means
      * it doesnt exist for the caller.
      */
-    if(!can_see_process(proc, targetProc, vis))
+    if(!proc_can_see_proc(proc, targetProc, vis))
     {
         errno = ESRCH;
         goto out_no;

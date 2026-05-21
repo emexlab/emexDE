@@ -42,10 +42,10 @@ DEFINE_SYSCALL_HANDLER(procpath)
     }
     
     /* getting visibility */
-    proc_visibility_t vis = get_proc_visibility(sys_proc_snapshot_);
+    proc_visibility_t vis = proc_get_proc_visibility(sys_proc_snapshot_);
     
     /* permission check */
-    if(!can_see_process(sys_proc_snapshot_, target, vis))
+    if(!proc_can_see_proc(sys_proc_snapshot_, target, vis))
     {
         kvo_release(target);
         sys_return_failure(ESRCH);

@@ -41,7 +41,7 @@ DEFINE_SYSCALL_HANDLER(kill)
      * also checks if the caller process has the entitlement to kill
      * and checks if the process has permitive over the other process.
      */
-    if(!permitive_over_pid_allowed(sys_proc_snapshot_, pid, YES, PEEntitlementProcessKill, PEEntitlementNone))
+    if(!proc_snapshot_permitive_over_pid_allowed(sys_proc_snapshot_, pid, YES, PEEntitlementProcessKill, PEEntitlementNone))
     {
         sys_return_failure(errno);
     }

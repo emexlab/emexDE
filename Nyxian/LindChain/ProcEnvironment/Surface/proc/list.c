@@ -23,7 +23,17 @@
 #include <LindChain/ProcEnvironment/Surface/lock.h>
 #include <assert.h>
 
-proc_visibility_t get_proc_visibility(ksurface_proc_snapshot_t *caller)
+/* Radix tree context */
+typedef struct {
+    ksurface_proc_snapshot_t *caller;
+    proc_visibility_t vis;
+    proc_flavour_t flavour;
+    pid_t dsid;
+    size_t len;
+    kinfo_proc_t *kp;
+} proc_list_radix_walker_t;
+
+proc_visibility_t proc_get_proc_visibility(ksurface_proc_snapshot_t *caller)
 {
     assert(caller != NULL);
     
@@ -43,9 +53,9 @@ proc_visibility_t get_proc_visibility(ksurface_proc_snapshot_t *caller)
     return PROC_VIS_SAME_SID;
 }
 
-bool can_see_process(ksurface_proc_snapshot_t *caller,
-                     ksurface_proc_t *target,
-                     proc_visibility_t vis)
+bool proc_can_see_proc(ksurface_proc_snapshot_t *caller,
+                       ksurface_proc_t *target,
+                       proc_visibility_t vis)
 {
     assert(caller != NULL);
     
@@ -65,9 +75,9 @@ bool can_see_process(ksurface_proc_snapshot_t *caller,
     }
 }
 
-bool is_flavour_matching(ksurface_proc_t *target,
-                         proc_flavour_t flavour,
-                         pid_t dsid)
+bool proc_is_flavour_matching(ksurface_proc_t *target,
+                              proc_flavour_t flavour,
+                              pid_t dsid)
 {
     assert(target != NULL);
     
@@ -81,8 +91,6 @@ bool is_flavour_matching(ksurface_proc_t *target,
             return dsid == proc_getsid(target);
         case PROC_FLV_RUID:
             return dsid == proc_getruid(target);
-        case PROC_FLV_PID:
-            return dsid == proc_getpid(target);
         default:
             return false;
     }
@@ -108,8 +116,8 @@ void proc_list_radix_walker_callback(uint64_t ident,
     
     kvo_rdlock(proc);
     
-    if(can_see_process(w->caller, proc, w->vis) &&
-       is_flavour_matching(proc, w->flavour, w->dsid))
+    if(proc_can_see_proc(w->caller, proc, w->vis) &&
+       proc_is_flavour_matching(proc, w->flavour, w->dsid))
     {
         kinfo_proc_t *cur_kp = (kinfo_proc_t*)(((char*)w->kp) + w->len);
         memcpy(cur_kp, &(proc->bsd), sizeof(kinfo_proc_t));
@@ -128,7 +136,7 @@ kern_return_t proc_list(ksurface_proc_snapshot_t *proc_copy,
 {
     assert(proc_copy != NULL && kp != NULL && len != NULL);
     
-    proc_visibility_t vis = get_proc_visibility(proc_copy);
+    proc_visibility_t vis = proc_get_proc_visibility(proc_copy);
     
     /* in case its none we dont even have to iterrate */
     if(vis == PROC_VIS_NONE)

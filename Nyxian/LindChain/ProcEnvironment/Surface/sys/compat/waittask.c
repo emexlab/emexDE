@@ -57,7 +57,7 @@ DEFINE_SYSCALL_HANDLER(waittask)
     pid_t pid = (pid_t)args[0];
     
     /* need process visibility */
-    proc_visibility_t vis = get_proc_visibility(sys_proc_snapshot_);
+    proc_visibility_t vis = proc_get_proc_visibility(sys_proc_snapshot_);
     
     /* getting target requested for caller */
     ksurface_proc_t *target;
@@ -69,7 +69,7 @@ DEFINE_SYSCALL_HANDLER(waittask)
     
     /* visibility check */
     kvo_rdlock(target);
-    if(!can_see_process(sys_proc_snapshot_, target, vis))
+    if(!proc_can_see_proc(sys_proc_snapshot_, target, vis))
     {
         goto out_nochild;
     }

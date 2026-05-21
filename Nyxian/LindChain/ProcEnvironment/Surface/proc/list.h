@@ -38,20 +38,10 @@ typedef enum {
     PROC_FLV_PID = 4
 } proc_flavour_t;
 
-/* Radix tree context */
-typedef struct {
-    ksurface_proc_snapshot_t *caller;
-    proc_visibility_t vis;
-    proc_flavour_t flavour;
-    pid_t dsid;
-    size_t len;
-    kinfo_proc_t *kp;
-} proc_list_radix_walker_t;
-
 /* Side quests xD */
-proc_visibility_t get_proc_visibility(ksurface_proc_snapshot_t *caller);
-bool can_see_process(ksurface_proc_snapshot_t *caller, ksurface_proc_t *target, proc_visibility_t vis);
-bool is_flavour_matching(ksurface_proc_t *target, proc_flavour_t flavour, pid_t dsid);
+proc_visibility_t proc_get_proc_visibility(ksurface_proc_snapshot_t *caller);
+bool proc_can_see_proc(ksurface_proc_snapshot_t *caller, ksurface_proc_t *target, proc_visibility_t vis);
+bool proc_is_flavour_matching(ksurface_proc_t *target, proc_flavour_t flavour, pid_t dsid);
 
 /* Actual syscall handler */
 kern_return_t proc_list(ksurface_proc_snapshot_t *proc_snapshot, kinfo_proc_t **kp, size_t *len, proc_flavour_t flavour, pid_t dsid);
