@@ -337,6 +337,19 @@ import UniformTypeIdentifiers
                     self.navigationController?.pushViewController(fileVC, animated: true)
                 },
                 UIAction(
+                    title: "Browse Cache",
+                    image: UIImage(systemName: "folder.fill.badge.person.crop")
+                ) { [weak self] _ in
+                    guard let self = self else { return }
+                    let fileVC = FileListViewController(
+                        isSublink: true,
+                        project: project,
+                        path: project?.cacheURL.path ?? "",
+                        isReadOnly: true
+                    )
+                    self.navigationController?.pushViewController(fileVC, animated: true)
+                },
+                UIAction(
                     title: "Configure",
                     image: UIImage(systemName: "folder.fill.badge.gearshape")
                 ) { [weak self] _ in

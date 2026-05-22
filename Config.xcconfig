@@ -10,7 +10,7 @@
 // https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
 
 VERSION = 0.10.2
-BUILD_NUMBER = 20260521.30.DEBUG
+BUILD_NUMBER = 20260522.2.DEBUG
 
 NYXIAN_DEVELOPMENT_TEAM = L4A6CKH3TV
 DEVELOPMENT_TEAM = $(NYXIAN_DEVELOPMENT_TEAM)
