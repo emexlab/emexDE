@@ -96,7 +96,6 @@ import UIKit
         if let sheet = hostingController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
-            sheet.preferredCornerRadius = 24
         }
         hostingController.view.backgroundColor = currentTheme!.backgroundColor;
         present(hostingController, animated: true)
