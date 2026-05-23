@@ -46,7 +46,13 @@ class CreditCell: UITableViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 18
+        
+        if #available(iOS 26.0, *) {
+            imageView.layer.cornerRadius = 18
+        } else {
+            imageView.layer.cornerRadius = 14
+        }
+        
         imageView.layer.borderWidth = 1
         imageView.layer.borderColor = UIColor.white.withAlphaComponent(0.5).cgColor
         return imageView
@@ -70,7 +76,13 @@ class CreditCell: UITableViewCell {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isUserInteractionEnabled = false
-        view.layer.cornerRadius = 18
+        
+        if #available(iOS 26.0, *) {
+            view.layer.cornerRadius = 18
+        } else {
+            view.layer.cornerRadius = 14
+        }
+        
         view.clipsToBounds = true
         return view
     }()
