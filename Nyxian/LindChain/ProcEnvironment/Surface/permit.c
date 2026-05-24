@@ -105,14 +105,15 @@ bool proc_snapshot_permitive_over_pid_allowed(ksurface_proc_snapshot_t *proc,
         proc_parent_for_proc(targetProc, &parent);
         while(parent != NULL)
         {
-            bool isParent = parent == (ksurface_proc_t*)proc->header.orig;
-            kvo_release(parent);
-            if(isParent)
+            if(parent == (ksurface_proc_t*)proc->header.orig)
             {
+                kvo_release(parent);
                 goto out_euid_check;
             }
             
-            kern_return_t kr = proc_parent_for_proc(targetProc, &parent);
+            ksurface_proc_t *oldparent = parent;
+            kern_return_t kr = proc_parent_for_proc(oldparent, &parent);
+            kvo_release(oldparent);
             if(kr != KERN_SUCCESS)
             {
                 break;
