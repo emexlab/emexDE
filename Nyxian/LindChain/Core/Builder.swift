@@ -290,7 +290,7 @@ class Builder: NSObject, MDKDriverDelegate, MDKPhaseRunnerDelegate {
         
 #if !JAILBREAK_ENV
         if(buildType == .RunningApp) {
-            if LCUtils.certificateData() == nil {
+            if LCUtils.certificateData == nil {
                 throw NSError(domain: "com.cr4zy.nyxian.builder.install", code: 1, userInfo: [NSLocalizedDescriptionKey:"No code signature present to perform signing, import code signature in Settings > Certificate. Note that the code signature must be the same code signature used to sign Nyxian."])
             }
             
@@ -356,7 +356,7 @@ class Builder: NSObject, MDKDriverDelegate, MDKPhaseRunnerDelegate {
                     throw nsError
                 }
             } else if self.project.projectConfig.schemeKind == .utility {
-                if LCUtils.certificateData() == nil {
+                if LCUtils.certificateData == nil {
                     throw NSError(domain: "com.cr4zy.nyxian.builder.install", code: 1, userInfo: [NSLocalizedDescriptionKey:"No code signature present to perform signing, import code signature in Settings > Certificate. Note that the code signature must be the same code signature used to sign Nyxian."])
                 }
                 

@@ -30,8 +30,9 @@ int dyld_get_program_sdk_version(void);
 
 @interface LCUtils : NSObject
 
-+ (NSData *)certificateData;
-+ (NSString *)certificatePassword;
+@property (class, nonatomic, readwrite, strong) NSData *certificateData;
+@property (class, nonatomic, readwrite, strong) NSString *certificatePassword;
+@property (class, nonatomic, readonly, strong) NSData *profileData;
 
 + (NSProgress *)signAppBundleWithZSign:(NSURL *)path completionHandler:(void (^)(BOOL success, NSError *error))completionHandler;
 + (BOOL)signMachOAtURL:(NSURL *)url;

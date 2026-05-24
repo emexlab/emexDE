@@ -122,9 +122,8 @@ class CertificateImporter: UIThemedTableViewController, UITextFieldDelegate {
             if let cert = cert,
                let url = cert.url {
                 let p12Data: Data = try Data(contentsOf: url)
-                UserDefaults.standard.set(p12Data, forKey: "LCCertificateData")
-                UserDefaults.standard.set(textField?.text ?? "", forKey: "LCCertificatePassword")
-                UserDefaults.standard.set(NSDate.now, forKey: "LCCertificateUpdateDate")
+                LCUtils.certificateData = p12Data
+                LCUtils.certificatePassword = textField?.text ?? ""
             }
         } catch {
             NotificationServer.NotifyUser(level: .error, notification: "Something went wrong importing the certificate! \(error.localizedDescription)")

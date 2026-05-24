@@ -30,17 +30,19 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <dlfcn.h>
 
-// make SFSafariView happy and open data: URLs
-@implementation NSURL(hack)
-- (BOOL)safari_isHTTPFamilyURL {
-    // Screw it, Apple
-    return YES;
-}
-@end
-
 @implementation LCUtils
 
 #pragma mark Certificate & password
+
++ (void)setCertificateData:(NSData *)certificateData
+{
+    [NSUserDefaults.standardUserDefaults setObject:certificateData forKey:@"LCCertificateData"];
+}
+
++ (void)setCertificatePassword:(NSString *)certificatePassword
+{
+    [NSUserDefaults.standardUserDefaults setObject:certificatePassword forKey:@"LCCertificatePassword"];
+}
 
 + (NSData *)certificateData
 {
@@ -50,6 +52,22 @@
 + (NSString *)certificatePassword
 {
     return [NSUserDefaults.standardUserDefaults objectForKey:@"LCCertificatePassword"];
+}
+
++ (NSData *)profileData
+{
+    static dispatch_once_t onceToken;
+    static NSData *profileData = nil;
+    dispatch_once(&onceToken, ^{
+        NSURL *profilePath = [NSBundle.mainBundle URLForResource:@"embedded" withExtension:@"mobileprovision"];
+        if(profilePath == nil)
+        {
+            return;
+        }
+        
+        profileData = [NSData dataWithContentsOfURL:profilePath];
+    });
+    return profileData;
 }
 
 #pragma mark Code signing
@@ -91,12 +109,7 @@
     /* patching arm64e things */
     LCPatchAppBundleFixupARM64eSlice(path);
     
-    /* use zsign as our signer~ (yeah daddy tim, were using zsigner as our signer, am i a bad girl now ;3) */
-    NSURL *profilePath = [NSBundle.mainBundle URLForResource:@"embedded" withExtension:@"mobileprovision"];
-    NSData *profileData = [NSData dataWithContentsOfURL:profilePath];
-    /* load libraries from Documents, yeah~ */
-    
-    return [NSClassFromString(@"ZSigner") signWithAppPath:[path path] prov:profileData key: self.certificateData pass:self.certificatePassword completionHandler:completionHandler];
+    return [ZSigner signWithAppPath:[path path] prov:self.profileData key: self.certificateData pass:self.certificatePassword completionHandler:completionHandler];
 }
 
 + (BOOL)signMachOAtURL:(NSURL *)url
@@ -123,24 +136,12 @@
     }
     
     /* use zsign as our signer~ (yeah daddy tim, were using zsigner as our signer, am i a bad girl now ;3) */
-    NSURL *profilePath = [NSBundle.mainBundle URLForResource:@"embedded" withExtension:@"mobileprovision"];
-    NSData *profileData = [NSData dataWithContentsOfURL:profilePath];
-    /* load libraries from Documents, yeah~ */
-    
-    return [ZSigner signMachOAtPath:url.path prov:profileData key:self.certificateData pass:self.certificatePassword];
+    return [ZSigner signMachOAtPath:url.path prov:self.profileData key:self.certificateData pass:self.certificatePassword];
 }
 
 + (int)validateCertificateWithCompletionHandler:(void(^)(int status, NSDate *expirationDate, NSString *error))completionHandler
 {
-    NSError *error;
-    NSURL *profilePath = [NSBundle.mainBundle URLForResource:@"embedded" withExtension:@"mobileprovision"];
-    NSData *profileData = [NSData dataWithContentsOfURL:profilePath];
-    NSData *certData = [LCUtils certificateData];
-    if (error) {
-        return -6;
-    }
-    int ans = [NSClassFromString(@"ZSigner") checkCertWithProv:profileData key:certData pass:[LCUtils certificatePassword] completionHandler:completionHandler];
-    return ans;
+    return [ZSigner checkCertWithProv:self.profileData key:self.certificateData pass:self.certificatePassword completionHandler:completionHandler];
 }
 
 @end

@@ -351,7 +351,7 @@ class ApplicationManagementViewController: UIThemedTableViewController, UITextFi
                         
                         self.present(alert, animated: true)
                         
-                        if LCUtils.certificateData() == nil {
+                        if LCUtils.certificateData == nil {
                             alert.dismiss(animated: true) {
                                 NotificationServer.NotifyUser(level: .error, notification: "No certificate present, please import the certificate used to sign Nyxian in Settings > Certificate.")
                             }
