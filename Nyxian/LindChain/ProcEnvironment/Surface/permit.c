@@ -112,12 +112,9 @@ bool proc_snapshot_permitive_over_pid_allowed(ksurface_proc_snapshot_t *proc,
             }
             
             ksurface_proc_t *oldparent = parent;
-            kern_return_t kr = proc_parent_for_proc(oldparent, &parent);
+            parent = NULL;
+            proc_parent_for_proc(oldparent, &parent);
             kvo_release(oldparent);
-            if(kr != KERN_SUCCESS)
-            {
-                break;
-            }
         }
     }
     
