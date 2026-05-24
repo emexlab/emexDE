@@ -102,7 +102,7 @@ void LCOverwriteExecutablePath(NSString *executablePath)
     performHookDyldApi("_NSGetExecutablePath", 2, (void**)&orig__NSGetExecutablePath, hook__NSGetExecutablePath_overwriteExecPath);
     _NSGetExecutablePath((char*)[executablePath UTF8String], NULL);
     /* put the original function back */
-    performHookDyldApi("_NSGetExecutablePath", 2, (void**)&orig__NSGetExecutablePath, orig__NSGetExecutablePath);
+    performHookDyldApi("_NSGetExecutablePath", 2, nil, orig__NSGetExecutablePath);
     
     /* overwriting remaining upper systems */
     NSString *procName = [executablePath lastPathComponent];
@@ -170,9 +170,18 @@ int LCBootstrapMain(NSString *executablePath,
         return 1;
     }
     
-    /* Preload executable to bypass RT_NOLOAD */
+    /*
+     * Preload executable to bypass RT_NOLOAD
+     *
+     * fixme: there is a TOCTOU vulnerability, we need to
+     *        map the segments manually to my knowledge of
+     *        the current time to prevent attackers of
+     *        replacing the image them selves. so we gotta
+     *        need to write a very very slim custom loader
+     *        which is hard or we find another way.
+     */
     appMainImageIndex = _dyld_image_count();
-    void *appHandle = dlopenBypassingLock(executablePath.fileSystemRepresentation, RTLD_LAZY|RTLD_GLOBAL|RTLD_FIRST);
+    void *appHandle = dlopenBypassingLock(executablePath.fileSystemRepresentation, RTLD_LAZY|RTLD_GLOBAL|RTLD_FIRST|RTLD_NODELETE);
     appExecutableHandle = appHandle;
     const char *dlerr = dlerror();
     
